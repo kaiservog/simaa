@@ -4,6 +4,7 @@ import (
  "fmt"
  "os"
  "io"
+ "io/ioutil"
  "strings"
  "path/filepath"
 )
@@ -169,4 +170,15 @@ func CopyDir(source string, dest string) (err error) {
         }
     }
     return
+}
+
+func GetDebName(path string) string {
+  files, _ := ioutil.ReadDir(path)
+  for _, f := range files {
+    fileExtension := f.Name()[len(f.Name())-3:]
+    if strings.Contains(fileExtension, "deb") {
+      return f.Name()
+    }
+  }
+  return ""
 }

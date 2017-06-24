@@ -24,28 +24,37 @@ func (server SimaaServer) GetHostWithPort() string {
 func CopyToServer(server SimaaServer, originFilePath, serverFilePath string) {
   fmt.Println("Conectando com o servidor", server.Host)
   client, err := ConnectSSH(server)
-  fmt.Println("Conexao com o servidor", server.Host, "realizada com sucesso")
-  sftp, err := sftp.NewClient(client)
-  fmt.Println("Conexao SFTP com o servidor", server.Host, "realizada com sucesso")
   if err != nil {
-		log.Fatal(err)
+    fmt.Println("Erro ao conectar via SSH")
+    fmt.Println(err)
+    return
   }
+  fmt.Println("Conexão SSH com o servidor", server.Host, "realizada com sucesso")
+  sftp, err := sftp.NewClient(client)
+  if err != nil {
+    fmt.Println("Erro ao conectar via SFTP")
+    fmt.Println(err)
+    return
+  }
+  fmt.Println("Conexão SFTP com o servidor", server.Host, "realizada com sucesso")
   defer sftp.Close()
 
   serverFile, err := sftp.Create(serverFilePath)
   if err != nil {
+    fmt.Println("Erro ao criar arquivo no ATM", serverFilePath)
 		log.Fatal(err)
   }
 
   localFile, err := os.Open(originFilePath)
   if err != nil {
+    fmt.Println("Erro ao abrir arquivo local", originFilePath)
 		log.Fatal(err)
   }
 
-  fmt.Println("Copiando arquivo")
+  fmt.Println("Copiando arquivo .deb")
 
   if _, err = io.Copy(serverFile, localFile); err != nil {
-    fmt.Println("Erro ao copiar arquivo")
+    fmt.Println("Erro ao copiar arquivo .deb")
     log.Fatal(err)
   }
 
@@ -60,7 +69,7 @@ func CopyToServer(server SimaaServer, originFilePath, serverFilePath string) {
 func ConnectSSH(server SimaaServer) (*ssh.Client, error) {
   clientConfig := &ssh.ClientConfig{
 		User: server.User,
-		Auth: []ssh.AuthMethod{ssh.Password("caixa")},
+		Auth: []ssh.AuthMethod{ssh.Password(server.Password)},
     HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
 			return nil
 		},

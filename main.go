@@ -54,11 +54,19 @@ func main() {
       return
     }
 
-    fmt.Println("Realizando deploy " + mvnPath)
+    fmt.Println("Realizando deploy")
+
+    server := SimaaServer{"192.168.1.109", "22", "chip", "chip"}
+    deb := GetDebName(mvnPath + "/main/target/")
+
+    fmt.Println("Nome do .deb é", deb)
+    CopyToServer(server, mvnPath + "/main/target/" + deb, "/tmp/" + deb)
   } else if command == "remote-deploy" {
-    file := os.Args[2]
-    server := SimaaServer{"192.168.172.2", "22", "root", "caixa"}
-    CopyToServer(server, file, "/tmp/testando.txt")
+    server := SimaaServer{"192.168.1.109", "22", "chip", "chip"}
+    caminho := "C:\\Users\\cesar\\Documents\\dev\\SIMAA\\biometria-saldo-saque-tev\\caixa-extracash\\main\\target"
+    deb := GetDebName(caminho)
+    fmt.Println("Nome do .deb é", deb)
+    CopyToServer(server, caminho + "/" + deb, "/tmp/" + deb)
   } else if command == "hash" {
     file := os.Args[2]
     fmt.Println(HashFile(file))
