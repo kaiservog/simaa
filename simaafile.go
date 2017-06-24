@@ -79,11 +79,11 @@ func createDirectory(filePath string) {
   _, err := os.Stat(filePath)
 
   if err != nil && os.IsNotExist(err) {
-    os.Mkdir(filePath, 0777)
+    os.Mkdir(filePath, os.FileMode(0777))
   }
 }
 
-func GetLastFolderFromPath(string branchPath) string {
+func GetLastFolderFromPath(branchPath string) string {
   folders := strings.Split(branchPath, "/")
   if len(folders) > 2 {
     return folders[len(folders) -1]
@@ -91,4 +91,82 @@ func GetLastFolderFromPath(string branchPath) string {
     folders = strings.Split(branchPath, "\\")
     return folders[len(folders) -1]
   }
+}
+
+func CopyFile(source string, dest string) (err error) {
+    sourcefile, err := os.Open(source)
+    if err != nil {
+        return err
+    }
+    defer sourcefile.Close()
+
+    destfile, err := os.Create(dest)
+    if err != nil {
+        return err
+    }
+    defer destfile.Close()
+
+    _, err = io.Copy(destfile, sourcefile)
+    if err == nil {
+        _, err := os.Stat(source)
+        if err != nil {
+            err = os.Chmod(dest, 0777)
+        }
+    }
+    SetWritable(dest)
+    return
+}
+
+func MakeParentFolder(source string, dest string) (string, error) {
+  dir := ConcatPath(dest, GetLastFolderFromPath(source))
+  err := os.Mkdir(dir, os.FileMode(0777))
+  SetWritable(dir)
+
+  if err != nil {
+    return "", err
+  }
+
+  dest = ConcatPath(dest, GetLastFolderFromPath(source))
+  return dest, nil
+}
+
+func SetWritable(filepath string) error {
+ 	err := os.Chmod(filepath, 0222)
+ 	return err
+}
+
+func CopyDir(source string, dest string) (err error) {
+    _, err = os.Stat(source)
+    if err != nil {
+        return err
+    }
+
+    err = os.MkdirAll(dest, 0777)
+    if err != nil {
+        return err
+    }
+
+    SetWritable(dest)
+
+    directory, _ := os.Open(source)
+
+    objects, err := directory.Readdir(-1)
+
+    for _, obj := range objects {
+        sourcefilepointer := source + "/" + obj.Name()
+        destinationfilepointer := dest + "/" + obj.Name()
+
+        if obj.IsDir() {
+            err = CopyDir(sourcefilepointer, destinationfilepointer)
+            if err != nil {
+                fmt.Println(err)
+            }
+        } else {
+            err = CopyFile(sourcefilepointer, destinationfilepointer)
+            if err != nil {
+                fmt.Println(err)
+            }
+        }
+    }
+    return
 }

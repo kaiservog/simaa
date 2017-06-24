@@ -42,18 +42,12 @@ func CopyToServer(server SimaaServer, originFilePath, serverFilePath string) {
 		log.Fatal(err)
   }
 
-  //bytesLocalFile := make([]byte, 5)
-  //localFile.Read(bytesLocalFile)
   fmt.Println("Copiando arquivo")
 
   if _, err = io.Copy(serverFile, localFile); err != nil {
     fmt.Println("Erro ao copiar arquivo")
     log.Fatal(err)
   }
-
-  //if _, err := serverFile.Write(bytesLocalFile); err != nil {
-	//	log.Fatal(err)
-  //}
 
   _, err = sftp.Lstat(serverFilePath)
 	if err != nil {

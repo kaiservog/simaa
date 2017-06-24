@@ -10,7 +10,7 @@ func FindArgument(arg string, args[] string) string {
 }
 
 func ContainArgument(arg string, args[] string) bool {
-  for index, element := range args {
+  for _, element := range args {
     if element == arg {
       return true
     }

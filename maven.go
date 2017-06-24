@@ -4,7 +4,7 @@ import "fmt"
 import "os/exec"
 import "bytes"
 
-func MavenCleanInstall(projectPath, folder string) {
+func MavenCleanInstall(projectPath string) error {
   fmt.Println("Tentando compilar com o Maven", projectPath)
   cmd := exec.Command("mvn", "clean", "install", "-f", projectPath)
 	var out bytes.Buffer
@@ -12,11 +12,10 @@ func MavenCleanInstall(projectPath, folder string) {
 
   err := cmd.Run()
 	if err != nil {
-    fmt.Println(err)
     fmt.Printf("%q", out.String())
-	} else {
-    fmt.Println("Download da branch realizado em", folder)
-  }
+    return err
+	}
+  return nil
 }
 
 func TestMaven() error {
