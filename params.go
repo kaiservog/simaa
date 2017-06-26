@@ -1,12 +1,12 @@
 package main
 
-func FindArgument(arg string, args[] string) string {
+func FindArgument(argA string, argB string, args[] string, def string) string {
   for index, element := range args {
-    if element == arg {
+    if element == argA || element == argB {
       return args[index+1]
     }
-  }
-  return ""
+    }
+  return def
 }
 
 func ContainArgument(arg string, args[] string) bool {
