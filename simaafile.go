@@ -3,6 +3,7 @@ package main
 import (
  "fmt"
  "os"
+ "os/exec"
  "io"
  "io/ioutil"
  "strings"
@@ -66,17 +67,17 @@ func CleanWorkDirectory() {
 func GetWorkDirectory() string {
   _, err := os.Stat("C:\\")
   if err == nil {
-    createDirectory("C:\\tmp")
-    createDirectory("C:\\tmp\\simaa_work")
+    CreateDirectory("C:\\tmp")
+    CreateDirectory("C:\\tmp\\simaa_work")
     return "C:\\tmp\\simaa_work"
   } else {
-    createDirectory("/tmp")
-    createDirectory("/tmp/simaa_work")
+    CreateDirectory("/tmp")
+    CreateDirectory("/tmp/simaa_work")
     return "/tmp/simaa_work"
    }
 }
 
-func createDirectory(filePath string) {
+func CreateDirectory(filePath string) {
   _, err := os.Stat(filePath)
 
   if err != nil && os.IsNotExist(err) {
@@ -181,4 +182,23 @@ func GetDebName(path string) string {
     }
   }
   return ""
+}
+
+func ExtractDebFiles(src, dest string) error {
+  fmt.Println("Descompactando arquivo", src, "para", dest)
+  cmd := exec.Command("7z", "x", src, "-o"+dest)
+  err := cmd.Run()
+  if err != nil {
+    return err
+  }
+  fmt.Println("Descompactado com sucesso")
+
+  fmt.Println("Descompactando arquivo", dest+"/data.tar", "para", dest)
+  cmd = exec.Command("7z", "x", dest+"/data.tar", "-o"+dest)
+  err = cmd.Run()
+  if err != nil {
+    return err
+  }
+  fmt.Println("Descompactado com sucesso")
+  return nil
 }

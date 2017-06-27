@@ -5,6 +5,8 @@ import (
  "os"
  "crypto/md5"
  "encoding/hex"
+ "os/exec"
+ "fmt"
 )
 
 func HashString(data string) (string, error) {
@@ -15,6 +17,8 @@ func HashString(data string) (string, error) {
 
 func HashFile(filePath string) (string, error) {
   var result []byte
+  fmt.Println("Gerando hash de do arquivo", filePath)
+
   file, err := os.Open(filePath)
   if err != nil {
     return "", err
@@ -42,4 +46,10 @@ func HashFiles(filePaths []string) (string, error) {
   }
 
   return HashString(hashs)
+}
+
+func Test7z() error {
+  cmd := exec.Command("7z")
+  err := cmd.Run()
+  return err
 }

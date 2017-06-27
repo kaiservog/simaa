@@ -39,6 +39,11 @@ func CopyToServer(server SimaaServer, originFilePath, serverFilePath string) {
   fmt.Println("Conexão SFTP com o servidor", server.Host, "realizada com sucesso")
   defer sftp.Close()
 
+  err = sftp.Remove(serverFilePath)
+  if err != nil {
+    fmt.Println(err)
+    fmt.Println("Continuando ...")
+  }
   serverFile, err := sftp.Create(serverFilePath)
   if err != nil {
     fmt.Println("Erro ao criar arquivo no ATM", serverFilePath)
@@ -51,10 +56,8 @@ func CopyToServer(server SimaaServer, originFilePath, serverFilePath string) {
 		log.Fatal(err)
   }
 
-  fmt.Println("Copiando arquivo .deb")
-
   if _, err = io.Copy(serverFile, localFile); err != nil {
-    fmt.Println("Erro ao copiar arquivo .deb")
+    fmt.Println("Erro ao copiar arquivo", serverFile)
     log.Fatal(err)
   }
 
@@ -63,7 +66,7 @@ func CopyToServer(server SimaaServer, originFilePath, serverFilePath string) {
 		log.Fatal(err)
 	}
 
-  fmt.Println("Arquivo copiado com sucesso")
+  fmt.Println("Arquivo copiado com sucesso", originFilePath, "->", serverFilePath)
 }
 
 func ConnectSSH(server SimaaServer) (*ssh.Client, error) {
@@ -83,7 +86,7 @@ func ConnectSSH(server SimaaServer) (*ssh.Client, error) {
   return client, nil
 }
 
-func CommandOnServer(server SimaaServer)  {
+func CommandOnServer(server SimaaServer, command string)  {
   client, err := ConnectSSH(server)
 
   if err != nil {
@@ -100,7 +103,7 @@ func CommandOnServer(server SimaaServer)  {
 
   var consoleOutput bytes.Buffer
   session.Stdout = &consoleOutput
-  err = session.Run("ls -l /opt")
+  err = session.Run(command)//"ls -l /opt"
 
   if err != nil {
     fmt.Print("Erro ao executar comando em: " + server.Host + server.Port)
@@ -108,4 +111,6 @@ func CommandOnServer(server SimaaServer)  {
     fmt.Println(consoleOutput.String())
     fmt.Println("Tudo ok")
   }
+
+  fmt.Println(command, "executado com sucesso")
 }
